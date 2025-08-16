@@ -16,7 +16,7 @@ async def resolve(domain, resolver):
         return [r.host for r in result]
     try:
         return await asyncio.wait_for(_resolve(), timeout=3)
-    except Exception as e:
+    except Exception:
         return []
 
 async def check_http(session, url):
@@ -26,8 +26,7 @@ async def check_http(session, url):
                 content = await resp.text()
                 return resp.status, content
             return resp.status, None
-    except Exception as e:
-        # print(f"[HTTP error] {url}: {e}")
+    except Exception:
         return None, None
 
 async def detect_wildcard(domain, resolver):
@@ -73,8 +72,8 @@ def load_subdomains(file_path="subdomains.txt"):
     return [line.strip() for line in lines if line.strip()]
 
 if __name__ == "__main__":
-    start_time = time.time()  # 记录开始时间
-    domain = "taobao.com"
+    start_time = time.time()
+    domain = "baidu.com"
     subdomains = load_subdomains()
     if not subdomains:
         print("[!] 未加载到任何子域名，程序结束。")
