@@ -4,7 +4,7 @@ import aiohttp
 from tqdm.asyncio import tqdm_asyncio
 import uvloop
 import os
-import time  # 引入时间模块
+import time
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -57,10 +57,7 @@ async def scan_subdomains(domain, subdomains):
     wildcard_content = await detect_wildcard(domain, resolver)
     found = []
     async with aiohttp.ClientSession(timeout=HTTP_TIMEOUT) as session:
-        tasks = [
-            scan_one(session, f"{sub}.{domain}", wildcard_content, resolver)
-            for sub in subdomains
-        ]
+        tasks = [scan_one(session, f"{sub}.{domain}", wildcard_content, resolver) for sub in subdomains]
         results = await tqdm_asyncio.gather(*tasks)
         for res in results:
             if res:
@@ -77,19 +74,15 @@ def load_subdomains(file_path="subdomains.txt"):
 
 if __name__ == "__main__":
     start_time = time.time()  # 记录开始时间
-
-    domain = "baidu.com"
+    domain = "taobao.com"
     subdomains = load_subdomains()
     if not subdomains:
         print("[!] 未加载到任何子域名，程序结束。")
         exit(1)
-
     print(f"[*] 正在扫描子域名: {domain}")
     results = asyncio.run(scan_subdomains(domain, subdomains))
-
     print(f"\n发现有效子域名数量: {len(results)}")
     for d, ips, status in results:
         print(f"{d} - IPs: {ips} - HTTP状态码: {status}")
-
     end_time = time.time()
     print(f"\n✅ 扫描完成，总耗时: {end_time - start_time:.2f} 秒")
